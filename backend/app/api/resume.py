@@ -1,13 +1,8 @@
 from fastapi import APIRouter, UploadFile, File
-from pydantic import BaseModel
 
 router = APIRouter()
 
-class JobDescription(BaseModel):
-    title: str
-    description: str
-
-@router.post("/analyze")
-async def analyze_job(job: JobDescription):
-    # Stub for JD analysis
-    return {"title": job.title, "keywords": ["python", "aws"]}
+@router.post("/upload")
+async def upload_resume(file: UploadFile = File(...)):
+    # Stub for parsing logic
+    return {"filename": file.filename, "status": "Resume received"}
