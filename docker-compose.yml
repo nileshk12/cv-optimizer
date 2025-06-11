@@ -1,0 +1,28 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: nileshk12/cv-optimizer-backend:latest
+    ports:
+      - "8000:8000"
+    mem_limit: 512m
+    networks:
+      - cv-optimizer-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: nileshk12/cv-optimizer-frontend:latest
+    ports:
+      - "3000:3000"
+    mem_limit: 256m
+    depends_on:
+      - backend
+    networks:
+      - cv-optimizer-network
+
+networks:
+  cv-optimizer-network:
+    driver: bridge

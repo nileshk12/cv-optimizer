@@ -1,20 +1,21 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import resume
-from app.api import job
+from fastapi.staticfiles import StaticFiles
+from app.api import resume, job
 
 app = FastAPI(title="CV Optimizer API")
-# Enable CORS
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://34.219.209.95:3000"],
+    allow_origins=["http://54.184.244.77:3000", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+# Mount the static directory to serve optimized CVs
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Include routes
 app.include_router(resume.router, prefix="/api/resume", tags=["Resume"])
 app.include_router(job.router, prefix="/api/job", tags=["Job Description"])
 
