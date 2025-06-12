@@ -17,8 +17,7 @@ router = APIRouter()
 
 # Load spaCy model and initialize SkillExtractor
 nlp = spacy.load("en_core_web_sm")
-matcher = PhraseMatcher(nlp.vocab)
-skill_extractor = SkillExtractor(nlp, SKILL_DB, matcher)
+skill_extractor = SkillExtractor(nlp, SKILL_DB, PhraseMatcher)
 
 # Directory to store optimized CVs
 OUTPUT_DIR = "static/optimized_cvs"
