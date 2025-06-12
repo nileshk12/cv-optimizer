@@ -1,23 +1,25 @@
 import os
-import openai
+from openai import AzureOpenAI  # ✅ NEW SDK import
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
-# Azure OpenAI specific configurations
-openai.api_type = "azure"
-openai.api_key = os.getenv("AZURE_OPENAI_KEY")
-openai.api_base = os.getenv("AZURE_OPENAI_ENDPOINT")
-openai.api_version = os.getenv("AZURE_OPENAI_API_VERSION")
+# Initialize Azure OpenAI client using new SDK
+client = AzureOpenAI(
+    api_key=os.getenv("AZURE_OPENAI_KEY"),
+    azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
+    api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
+)
 
-# Your deployment name (model deployment inside Azure OpenAI)
+# Deployment name
 AZURE_DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
 
 def gpt_skill_match(resume_text, jd_text):
     """
-    Calls Azure OpenAI GPT model to extract skills, compare, and suggest improvements.
+    Calls Azure OpenAI to extract skills, compare and suggest improvements.
     """
+
     prompt = f"""
 You are an expert AI technical recruiter.
 
@@ -31,24 +33,27 @@ Here is the job description:
 {jd_text}
 \"\"\"
 
-Your task:
-1. Extract important technical skills from the resume.
-2. Extract important skills required from the job description.
-3. Identify missing skills.
-4. Suggest how the candidate can improve the resume to better match the job.
+Extract:
+1. Resume skills.
+2. JD skills.
+3. Missing skills.
+4. Suggestions.
 
-Return your response ONLY in valid JSON as:
+Return valid JSON format only:
 {{
   "resume_skills": [...],
   "jd_skills": [...],
   "missing_skills": [...],
-  "suggestions": "your improvement suggestions"
+  "suggestions": "..."
 }}
 """
 
-    response = openai.ChatCompletion.create(
-        engine=AZURE_DEPLOYMENT_NAME,
-        messages=[{"role": "user", "content": prompt}],
+    response = client.chat.completions.create(
+        model=AZURE_DEPLOYMENT_NAME,   # ✅ Correct new syntax
+        messages=[
+            {"role": "system", "content": "You are a highly skilled recruiter and resume optimization AI."},
+            {"role": "user", "content": prompt}
+        ],
         temperature=0.3,
     )
 

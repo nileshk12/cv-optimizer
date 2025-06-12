@@ -13,6 +13,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 from typing import List
 from app.services import gpt_matcher
+import json
 router = APIRouter()
 
 # Load spaCy model and initialize SkillExtractor
