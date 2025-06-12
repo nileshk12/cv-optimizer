@@ -14,6 +14,7 @@ import numpy as np
 from typing import List
 from app.services import gpt_matcher
 import json
+from fastapi import Request
 router = APIRouter()
 
 # Load spaCy model and initialize SkillExtractor
@@ -106,8 +107,7 @@ def create_optimized_cv(resume_content: str, missing_skills: List[str]) -> str:
     return filename
 
 @router.post("/analyze")
-async def analyze_job(job: JobDescription):
-    # Extract JD keywords with TF-IDF ranking
+async def analyze_job(job: JobDescription, request: Request):
     jd_keywords = extract_keywords(job.description, use_tfidf=True)
     missing_skills = [keyword for keyword in jd_keywords if keyword not in job.resume_keywords]
     
@@ -118,8 +118,9 @@ async def analyze_job(job: JobDescription):
         suggestions.append("Your resume already covers most of the job description keywords!")
     
     optimized_cv_filename = create_optimized_cv(job.resume_content, missing_skills)
-    download_url = f"http://54.212.237.103:8000/static/optimized_cvs/{optimized_cv_filename}"
     
+    download_url = str(request.base_url) + f"static/optimized_cvs/{optimized_cv_filename}"
+
     return {
         "title": job.title,
         "jd_keywords": jd_keywords,
