@@ -115,7 +115,7 @@ async def analyze_job(job: JobDescription):
         suggestions.append("Your resume already covers most of the job description keywords!")
     
     optimized_cv_filename = create_optimized_cv(job.resume_content, missing_skills)
-    download_url = f"http://54.212.243.217:8000/static/optimized_cvs/{optimized_cv_filename}"
+    download_url = f"http://54.212.237.103:8000/static/optimized_cvs/{optimized_cv_filename}"
     
     return {
         "title": job.title,
