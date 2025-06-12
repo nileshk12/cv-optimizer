@@ -12,7 +12,7 @@ from skillNer.general_params import SKILL_DB
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 from typing import List
-
+from app.services import gpt_matcher
 router = APIRouter()
 
 # Load spaCy model and initialize SkillExtractor
@@ -28,6 +28,9 @@ class JobDescription(BaseModel):
     description: str
     resume_keywords: List[str]
     resume_content: str
+class GPTMatchRequest(BaseModel):
+    resume_content: str
+    job_description: str
 
 def extract_keywords(text: str, use_tfidf: bool = False) -> List[str]:
     # Annotate text with skillNer to extract skills
@@ -130,3 +133,18 @@ async def download_optimized_cv(filename: str):
     if os.path.exists(filepath):
         return FileResponse(filepath, media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document", filename=filename)
     return {"error": "File not found"}
+@router.post("/gpt-match")
+async def gpt_match(match_request: GPTMatchRequest):
+    gpt_response = gpt_matcher.gpt_skill_match(
+        match_request.resume_content,
+        match_request.job_description
+    )
+
+    try:
+        parsed_response = json.loads(gpt_response)
+        return parsed_response
+    except json.JSONDecodeError:
+        return {
+            "error": "Failed to parse GPT response",
+            "raw_response": gpt_response
+        }
