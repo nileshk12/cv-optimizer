@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
 function App() {
   const [file, setFile] = useState(null);
   const [jobDesc, setJobDesc] = useState('');
@@ -10,27 +12,56 @@ function App() {
   const handleSubmit = async () => {
     try {
       setError(null);
-      // Create form data for resume upload
       const formData = new FormData();
       formData.append('file', file);
 
-      // Send resume to backend
-      const resumeRes = await axios.post('http://54.212.237.103:8000/api/resume/upload', formData, {
+      // Upload resume
+      const resumeRes = await axios.post('{BACKEND_URL}/api/resume/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      // Send job description to backend, including resume keywords
-      const jobRes = await axios.post('http://54.212.237.103:8000/api/job/analyze', {
+      // Call /analyze API
+      const jobRes = await axios.post('{BACKEND_URL}/api/job/analyze', {
         title: 'Sample Job Title',
         description: jobDesc,
         resume_keywords: resumeRes.data.keywords || [],
-	resume_content: resumeRes.data.content || ""
+        resume_content: resumeRes.data.content || ""
       });
 
-      // Store responses
-      setResponse({ resume: resumeRes.data, job: jobRes.data });
+      setResponse({
+        resume: resumeRes.data,
+        analyze: jobRes.data,
+        gptMatch: null  // reset GPT result
+      });
     } catch (err) {
       setError('Error connecting to backend: ' + err.message);
+    }
+  };
+
+  const handleGptMatch = async () => {
+    try {
+      setError(null);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Upload resume (again, because backend is stateless)
+      const resumeRes = await axios.post('http://{BACKEND_URL}/api/resume/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      // Call GPT Match API
+      const gptRes = await axios.post('http://{BACKEND_URL}/api/job/gpt-match', {
+        resume_content: resumeRes.data.content,
+        job_description: jobDesc
+      });
+
+      setResponse({
+        resume: resumeRes.data,
+        analyze: null,  // reset analyze result
+        gptMatch: gptRes.data
+      });
+    } catch (err) {
+      setError('Error with GPT matching: ' + err.message);
     }
   };
 
@@ -57,20 +88,43 @@ function App() {
             rows="6"
           />
         </div>
-        <button
-          onClick={handleSubmit}
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          disabled={!file || !jobDesc}
-        >
-          Submit
-        </button>
+
+        <div className="flex space-x-2">
+          <button
+            onClick={handleSubmit}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            disabled={!file || !jobDesc}
+          >
+            Analyze (SkillNer)
+          </button>
+
+          <button
+            onClick={handleGptMatch}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            disabled={!file || !jobDesc}
+          >
+            GPT Skill Match
+          </button>
+        </div>
       </div>
-      {response && (
+
+      {response?.analyze && (
         <div className="mt-4 p-4 bg-white rounded shadow w-full max-w-md">
-          <h2 className="text-lg font-bold">Backend Response</h2>
-          <pre className="text-sm">{JSON.stringify(response, null, 2)}</pre>
+          <h2 className="text-lg font-bold">SkillNer Analysis Result</h2>
+          <pre className="text-sm">{JSON.stringify(response.analyze, null, 2)}</pre>
         </div>
       )}
+
+      {response?.gptMatch && (
+        <div className="mt-4 p-4 bg-white rounded shadow w-full max-w-md">
+          <h2 className="text-lg font-bold">GPT Match Result</h2>
+          <p><strong>Resume Skills:</strong> {response.gptMatch.resume_skills?.join(", ")}</p>
+          <p><strong>JD Skills:</strong> {response.gptMatch.jd_skills?.join(", ")}</p>
+          <p><strong>Missing Skills:</strong> {response.gptMatch.missing_skills?.join(", ")}</p>
+          <p><strong>Suggestions:</strong> {response.gptMatch.suggestions}</p>
+        </div>
+      )}
+
       {error && (
         <div className="mt-4 p-4 bg-red-100 text-red-700 rounded w-full max-w-md">
           {error}
