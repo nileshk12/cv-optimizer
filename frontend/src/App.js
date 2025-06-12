@@ -15,7 +15,7 @@ function App() {
       formData.append('file', file);
 
       // Send resume to backend
-      const resumeRes = await axios.post('http://54.212.243.217:8000/api/resume/upload', formData, {
+      const resumeRes = await axios.post('http://54.212.237.103:8000/api/resume/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
