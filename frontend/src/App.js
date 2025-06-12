@@ -15,12 +15,12 @@ function App() {
       formData.append('file', file);
 
       // Send resume to backend
-      const resumeRes = await axios.post('http://54.184.244.77:8000/api/resume/upload', formData, {
+      const resumeRes = await axios.post('http://54.212.243.217:8000/api/resume/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       // Send job description to backend, including resume keywords
-      const jobRes = await axios.post('http://54.184.244.77:8000/api/job/analyze', {
+      const jobRes = await axios.post('http://54.212.243.217:8000/api/job/analyze', {
         title: 'Sample Job Title',
         description: jobDesc,
         resume_keywords: resumeRes.data.keywords || []
