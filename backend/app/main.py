@@ -7,7 +7,7 @@ app = FastAPI(title="CV Optimizer API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://54.212.243.217:3000", "http://localhost:3000"],
+    allow_origins=["http://54.212.237.103:3000", "http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
