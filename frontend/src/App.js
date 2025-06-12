@@ -23,7 +23,8 @@ function App() {
       const jobRes = await axios.post('http://54.212.237.103:8000/api/job/analyze', {
         title: 'Sample Job Title',
         description: jobDesc,
-        resume_keywords: resumeRes.data.keywords || []
+        resume_keywords: resumeRes.data.keywords || [],
+	resume_content: resumeRes.data.content || ""
       });
 
       // Store responses
