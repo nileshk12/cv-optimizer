@@ -13,8 +13,7 @@ router = APIRouter()
 
 # Load spaCy model and initialize SkillExtractor
 nlp = spacy.load("en_core_web_sm")
-matcher = PhraseMatcher(nlp.vocab)
-skill_extractor = SkillExtractor(nlp, SKILL_DB, matcher)
+skill_extractor = SkillExtractor(nlp, SKILL_DB, PhraseMatcher)
 
 # Define a Pydantic model for the response
 class ResumeResponse(BaseModel):
