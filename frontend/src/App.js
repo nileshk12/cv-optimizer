@@ -20,7 +20,7 @@ function App() {
       });
 
       // Send job description to backend, including resume keywords
-      const jobRes = await axios.post('http://54.212.243.217:8000/api/job/analyze', {
+      const jobRes = await axios.post('http://54.212.237.103:8000/api/job/analyze', {
         title: 'Sample Job Title',
         description: jobDesc,
         resume_keywords: resumeRes.data.keywords || []
